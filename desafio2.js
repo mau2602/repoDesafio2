@@ -4,17 +4,19 @@ import fs from 'fs/promises'
 class ProductManager {
     constructor(path) {
         this.path = path
-        this.unique_id = 1; 
+        this.unique_id = 1;
+        this.list = [];
+
     }
 
     async loadFile() {
-        const json = await fs.readFile(this.path, 'utf-8');
-        this.lista = JSON.parse(json);
-        return this.lista;
+        const json = await fs.readFile(this.path, 'utf-8');         
+        return JSON.parse(json);                                    
+        
     }
 
     async saveFile() {
-        const json = JSON.stringify(this.lista, null, 2)
+        const json = JSON.stringify(this.list, null, 2)
         await fs.writeFile(this.path, json)
     }
 
@@ -39,18 +41,15 @@ class ProductManager {
 
          if (allProducts.length === 0){
             allProducts.push(producto);
-            await this.saveFile();
-         } else  {
-            
+         } else  {            
             const finder = allProducts.find(( i => i.code === code));
-    
             if (finder){
                 console.log('Error. producto duplicado')
             }  else  {
-                allProducts.push(producto);
-                await this.saveFile();
+                allProducts.push(producto);    
             }
         }
+        await this.saveFile(allProducts);
         return producto;
         
     }
@@ -91,21 +90,4 @@ class ProductManager {
 
 const productos = new ProductManager('./products.txt')
 
-
-await productos.getProducts()
-
-await productos.createProduct("producto prueba", 'este es un producto de prueba', 200, 'Sin imagen', 'ab23', 25)
-await productos.getProducts()
-
-await productos.createProduct("producto prueba", 'este es un producto de prueba', 200, 'imagen', 'abc23', 25)
-await productos.getProducts()
-
-await productos.getProductByID(2);
-
-await productos.deleteProduct(2);
-
-await productos.getProducts()
-
-await productos.updateProduct({id: 1, title:'nuevo producto', description:'Esto es un nuevo producto', price:300, thumbnail:'producto sin imagen', code:'JSBK23', stock:45})
-
-await productos.getProducts()
+//await productos.loadFile();
