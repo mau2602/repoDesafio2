@@ -39,19 +39,22 @@ class ProductManager {
 
          if (allProducts.length === 0){
             allProducts.push(producto);
-         }  else {                                  
+         }  else  {                                  
+            
             const finder = allProducts.find(( i => i.code === code));
-            if (finder){
-                console.log('Error. producto duplicado')
-            }  else  {
-                allProducts.push(producto);    
+            const double = allProducts[allProducts.length-1].id
+
+            if (finder || double === producto.id){
+                console.log("Error. ID o codigo de producto repetido. Verifique los datos")
+            } else {
+                allProducts.push(producto);
             }
          }
         await this.saveFile(allProducts);
         return producto;
         
-    
         }
+        
     async getProductByID(id){
         const allProducts = await this.loadFile();
         const found = allProducts.find((i => i.id === id));
@@ -104,6 +107,8 @@ await productos.deleteProduct(2);
 
 await productos.getProducts()
 
-await productos.updateProduct({id: 1, title:'nuevo producto', description:'Esto es un nuevo producto', price:300, thumbnail:'producto sin imagen', code:'JSBK23', stock:45})
+await productos.updateProduct({id: 2, title:'nuevo producto', description:'Esto es un nuevo producto', price:300, thumbnail:'producto sin imagen', code:'JSBK23', stock:45})
 
 await productos.getProducts()
+
+await productos.createProduct("producto prueba", 'este es un producto de prueba', 200, 'imagen', 'ac23', 25)
