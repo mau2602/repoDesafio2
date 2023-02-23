@@ -1,3 +1,4 @@
+
 import fs from 'fs/promises'
 
 
@@ -5,18 +6,15 @@ class ProductManager {
     constructor(path) {
         this.path = path
         this.unique_id = 1;
-        this.list = [];
-
     }
 
     async loadFile() {
         const json = await fs.readFile(this.path, 'utf-8');         
-        return JSON.parse(json);                                    
-        
+        return JSON.parse(json);                                     
     }
 
-    async saveFile() {
-        const json = JSON.stringify(this.list, null, 2)
+    async saveFile(allProducts) {
+        const json = JSON.stringify(allProducts, null, 2)
         await fs.writeFile(this.path, json)
     }
 
@@ -41,19 +39,19 @@ class ProductManager {
 
          if (allProducts.length === 0){
             allProducts.push(producto);
-         } else  {            
+         }  else {                                  
             const finder = allProducts.find(( i => i.code === code));
             if (finder){
                 console.log('Error. producto duplicado')
             }  else  {
                 allProducts.push(producto);    
             }
-        }
+         }
         await this.saveFile(allProducts);
         return producto;
         
-    }
-
+    
+        }
     async getProductByID(id){
         const allProducts = await this.loadFile();
         const found = allProducts.find((i => i.id === id));
@@ -65,11 +63,11 @@ class ProductManager {
     }   
 
     async updateProduct(newProduct){
-        const updProduct = await this.loadFile();
-        const upd = updProduct.findIndex( pr => pr.id === newProduct.id)
+        const allProducts = await this.loadFile();
+        const upd = allProducts.findIndex( pr => pr.id === newProduct.id)
         if(upd >= 0){
-            updProduct[upd] = newProduct;
-            await this.saveFile();
+            allProducts[upd] = newProduct;
+            await this.saveFile(allProducts);
         } else {
             console.log('El producto a actualizar no existe')
         }
@@ -77,11 +75,13 @@ class ProductManager {
 
     async deleteProduct(id){
 
-        const deleted = await this.loadFile();
-        const byeProduct = deleted.findIndex( pr => pr.id === id)
+        const allProducts = await this.loadFile();
+        
+        const byeProduct = allProducts.findIndex( pr => pr.id === id)
         if(byeProduct >= 0){
-            deleted.splice(byeProduct, 1);
-            await this.saveFile();
+            allProducts.splice(byeProduct, 1);
+            await this.saveFile(allProducts);
+        
         } else {
             console.log('El producto no existe')
         }
@@ -90,4 +90,20 @@ class ProductManager {
 
 const productos = new ProductManager('./products.txt')
 
-//await productos.loadFile();
+
+await productos.getProducts()
+await productos.createProduct("producto prueba", 'este es un producto de prueba', 200, 'Sin imagen', 'ab23', 25)
+await productos.getProducts()
+
+await productos.createProduct("producto prueba", 'este es un producto de prueba', 200, 'imagen', 'abc23', 25)
+await productos.getProducts()
+
+await productos.getProductByID(2);
+
+await productos.deleteProduct(2);
+
+await productos.getProducts()
+
+await productos.updateProduct({id: 1, title:'nuevo producto', description:'Esto es un nuevo producto', price:300, thumbnail:'producto sin imagen', code:'JSBK23', stock:45})
+
+await productos.getProducts()
